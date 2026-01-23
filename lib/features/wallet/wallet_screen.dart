@@ -101,7 +101,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   onRetry: () => _load(),
                 )
               : list.isEmpty
-                  ? const WpEmpty(text: "No credentials yet.")
+                  ? const WpEmpty(title: "No credentials yet.")
                   : RefreshIndicator(
                       onRefresh: () => _load(),
                       child: ListView.separated(
