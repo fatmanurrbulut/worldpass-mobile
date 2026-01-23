@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     email.dispose();
     pass.dispose();
-    super.dispose();
+    super.dispose();      
   }
 
   Future<void> _submit() async {
@@ -56,27 +56,17 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => loading = true);
 
     try {
-      final api = ApiClient();
-      final auth = AuthApi(api);
-
-      await authApi.login(
+      final res = await authApi.login(
         email: email.text.trim(),
         password: pass.text,
       );
 
-      final emailText = email.text.trim(); // şimdilik input field adın "did", sonra "email" yaparsın
-      final passText = pass.text;
-
-      final res = await authApi.login(
-        email: emailText,
-        password: passText,
-      );
-
-      // backend token dönüyorsa burada yakalarsın (şimdilik log)
       debugPrint("login res: $res");
 
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, AppRoutes.homeTabs);
+      // TODO: token parse edip sakla
+      // final token = res["token"] ?? res["access_token"];
+      // await tokenStore.setUserToken(token);
+      // _apiClient.token = token;
 
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, AppRoutes.homeTabs);
@@ -88,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => loading = false);
     }
   }
+
 
 
 

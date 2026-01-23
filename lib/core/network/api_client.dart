@@ -6,15 +6,16 @@ import 'api_exception.dart';
 
 class ApiClient {
   ApiClient({http.Client? httpClient}) : _http = httpClient ?? http.Client();
-
   final http.Client _http;
 
-  String? bearerToken;
+  // backend convention
+  String? token;        // user_token / issuer_token burada set edilecek
+  String? walletDid;    // varsa X-Wallet-Did
 
   Uri _uri(String path, [Map<String, dynamic>? query]) {
-    // path her zaman "/api/..." gibi gelsin
     final normalized = path.startsWith("/") ? path : "/$path";
-    return Uri.parse("${AppConfig.baseUrl}$normalized").replace(queryParameters: query);
+    return Uri.parse("${AppConfig.baseUrl}$normalized")
+        .replace(queryParameters: query);
   }
 
   Map<String, String> _headers({bool json = true}) {
@@ -22,9 +23,26 @@ class ApiClient {
       if (json) "Content-Type": "application/json",
       "Accept": "application/json",
     };
-    final t = bearerToken;
-    if (t != null && t.isNotEmpty) h["Authorization"] = "Bearer $t";
+
+    final t = token;
+    if (t != null && t.isNotEmpty) {
+      h["X-Token"] = t; // primary
+      h["Authorization"] = "Bearer $t"; // fallback (zararı yok)
+    }
+
+    final d = walletDid;
+    if (d != null && d.isNotEmpty) h["X-Wallet-Did"] = d;
+
     return h;
+  }
+
+  Future<T> getJson<T>(
+    String path, {
+    Map<String, dynamic>? query,
+    T Function(dynamic json)? parser,
+  }) async {
+    final res = await _http.get(_uri(path, query), headers: _headers(json: false));
+    return _handle<T>(res, parser);
   }
 
   Future<T> postJson<T>(
@@ -37,7 +55,10 @@ class ApiClient {
       headers: _headers(json: true),
       body: jsonEncode(body ?? {}),
     );
+    return _handle<T>(res, parser);
+  }
 
+  T _handle<T>(http.Response res, T Function(dynamic)? parser) {
     final text = res.body;
     dynamic decoded;
     try {

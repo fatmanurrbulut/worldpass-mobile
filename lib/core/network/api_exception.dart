@@ -1,10 +1,10 @@
 class ApiException implements Exception {
-  final int status;
+  final int statusCode;
   final String message;
   final dynamic body;
 
-  ApiException(this.status, this.message, {this.body});
+  ApiException(this.statusCode, this.message, {this.body});
 
   @override
-  String toString() => "ApiException($status): $message";
+  String toString() => "ApiException($statusCode): $message | body=$body";
 }
