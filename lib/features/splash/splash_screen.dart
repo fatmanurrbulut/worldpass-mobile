@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+
 import '../../core/routes/routes.dart';
 import '../../ui/theme/app_tokens.dart'; // Spacing ve Font ayarları için
 
@@ -54,6 +56,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void dispose() {
     _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _timer = null;
     super.dispose();
   }
 
